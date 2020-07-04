@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <EditText
+        android:id="@+id/EditText_TrafficLimit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="8dp"
+        android:ems="10"
+        android:hint="Traffic limit"
+        android:inputType="number"
+        android:maxLength="4"
+        app:layout_constraintEnd_toStartOf="@+id/spinner_TrafficLimit"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Spinner
+        android:id="@+id/spinner_TrafficLimit"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:layout_marginRight="16dp"
+        android:entries="@array/Traffic_Limit_Options"
+        app:layout_constraintBottom_toBottomOf="@+id/EditText_TrafficLimit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/EditText_TrafficLimit" />
+
+    <EditText
+        android:id="@+id/EditText_MobileNo"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="Mobile Phone of recipient"
+        android:inputType="text"
+        android:maxLength="15"
+        app:layout_constraintEnd_toEndOf="@+id/EditText_TrafficLimit"
+        app:layout_constraintStart_toStartOf="@+id/EditText_TrafficLimit"
+        app:layout_constraintTop_toBottomOf="@+id/EditText_TrafficLimit" />
+
+    <EditText
+        android:id="@+id/EditText_Message"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/edit_text_frame"
+        android:ems="10"
+        android:hint="  Message"
+        android:inputType="textPersonName"
+        android:maxLength="100"
+        android:padding="10dp"
+        app:layout_constraintEnd_toEndOf="@+id/spinner_TrafficLimit"
+        app:layout_constraintStart_toStartOf="@+id/EditText_MobileNo"
+        app:layout_constraintTop_toBottomOf="@+id/textView_timeReset" />
+
+    <Spinner
+        android:id="@+id/spinner2_MobileNumberOptions"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:entries="@array/Messaging_Options"
+        android:gravity="center"
+        android:textAlignment="center"
+        app:layout_constraintBottom_toBottomOf="@+id/EditText_MobileNo"
+        app:layout_constraintEnd_toEndOf="@+id/spinner_TrafficLimit"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="@+id/spinner_TrafficLimit"
+        app:layout_constraintTop_toTopOf="@+id/EditText_MobileNo"
+        app:layout_constraintVertical_bias="0.428" />
+
+    <Button
+        android:id="@+id/button_save"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="155dp"
+        android:layout_marginLeft="155dp"
+        android:layout_marginTop="51dp"
+        android:layout_marginEnd="168dp"
+        android:layout_marginRight="168dp"
+        android:text="Save"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/EditText_Message" />
+
+    <TextView
+        android:id="@+id/textView_timeReset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Time of reset data"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/EditText_MobileNo" />
+</androidx.constraintlayout.widget.ConstraintLayout>
