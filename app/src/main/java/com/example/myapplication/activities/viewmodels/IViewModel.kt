@@ -1,4 +1,4 @@
-package com.example.myapplication.activities.viewmodels.recyclerviews
+package com.example.myapplication.activities.viewmodels
 
 import androidx.lifecycle.LiveData
 import com.example.myapplication.room.Model_TrafficSettings
@@ -8,7 +8,7 @@ interface IViewModel {
 
      fun initializeUserSettings(): LiveData<*>?
 
-     fun saveUserSettings(operatorNumber:String,hours:Int,minutes:Int,traffic:Long,message:String,size: String, replayFlag:Boolean){}
+     fun saveUserSettings(operatorNumber:String,hours:Int,minutes:Int,traffic:Long,message:String,expectedMessage:String,size: String, replayFlag:Boolean){}
 
      fun getUserSettings(number : String){}
 

@@ -45,5 +45,14 @@
             android:layout_margin="10dp"
             android:hint="response message: " />
 
+        <TextView
+            android:id="@+id/textView_ExpectedMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:ems="10"
+            android:hint="message you expect to receive?"
+            android:inputType="textPersonName" />
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

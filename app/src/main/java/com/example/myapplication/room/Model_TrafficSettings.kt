@@ -2,6 +2,7 @@ package com.example.myapplication.room
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.example.myapplication.helpers.Constants.Companion.DAO_TABLE_NAME
 
@@ -64,5 +65,17 @@ import com.example.myapplication.helpers.Constants.Companion.DAO_TABLE_NAME
              field = value
          }
 
+    @ColumnInfo(name = "expectedMessage")
+    var expectedMessage : String =""
+        get() = field
+        set(value) {
+            field = value
+        }
 
+    @Ignore
+    var replayedMessageFromOperator : String =""
+        get() = field
+        set(value) {
+            field = value
+        }
  }

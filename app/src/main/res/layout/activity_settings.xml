@@ -79,14 +79,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="155dp"
-        android:layout_marginLeft="155dp"
-        android:layout_marginTop="51dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="168dp"
-        android:layout_marginRight="168dp"
         android:text="Save"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/EditText_Message" />
+        app:layout_constraintTop_toBottomOf="@+id/editText_expectedMessage" />
 
     <TextView
         android:id="@+id/textView_timeReset"
@@ -97,4 +95,18 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/EditText_MobileNo" />
+
+    <EditText
+        android:id="@+id/editText_expectedMessage"
+        android:layout_width="0dp"
+        android:layout_height="100dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/edit_text_frame"
+        android:ems="10"
+        android:hint="Message you expect to receive?"
+        android:inputType="textPersonName"
+        android:padding="10dp"
+        app:layout_constraintEnd_toEndOf="@+id/EditText_Message"
+        app:layout_constraintStart_toStartOf="@+id/EditText_Message"
+        app:layout_constraintTop_toBottomOf="@+id/EditText_Message" />
 </androidx.constraintlayout.widget.ConstraintLayout>

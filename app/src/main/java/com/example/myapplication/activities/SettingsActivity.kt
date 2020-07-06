@@ -24,6 +24,7 @@ import com.example.myapplication.R
 import com.example.myapplication.activities.viewmodels.SettingsActivity_ViewModel
 import com.example.myapplication.dialogs.TimePickerDisplay
 import com.example.myapplication.room.Model_TrafficSettings
+import kotlinx.android.synthetic.main.activity_settings.*
 import java.math.BigInteger
 
 
@@ -32,9 +33,10 @@ class SettingsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
     val TAG: String = "SettingsActivity.class"
 
-
+    // default is to replay on message recieved unless set to replay when limit exceded
     var MonitorAndReplay = true
     lateinit var messageText: EditText
+    lateinit var replayMessageText: EditText
     lateinit var resetTime: TextView
     lateinit var mobileNumber: EditText
     lateinit var trafficLimit: EditText
@@ -78,6 +80,7 @@ class SettingsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                 mobileNumber.setText(it.operatorNumber)
                 messageText.setText(it.message)
                 resetTime.setText(it.hours.toString() + " : " + it.minutes.toString())
+                replayMessageText.setText(it.expectedMessage)
                 if (it.size == "GB")  spinnerTrafficLimit.setSelection(0) else  spinnerTrafficLimit.setSelection(1)
                 if (it.MonitorAndReplay) spinnerMobileNumberOptions.setSelection(0) else  spinnerMobileNumberOptions.setSelection(1)
 
@@ -95,12 +98,15 @@ class SettingsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
         if (str == "Monitor And Replay") MonitorAndReplay = true
         if (str == "Reply When Limit exceeded") MonitorAndReplay = false
 
+        replayMessageText.visibility = if (MonitorAndReplay) View.VISIBLE else View.INVISIBLE
+
     }
 
     fun saveUsersSettings() {
         var trafficLimitNumber = 0L
         var mobileNumberForReplays: String = "0"
         var message = "Message Not Set"
+        var expectedMessage = "Expected Message Not Set"
         if (trafficLimit.text.length <= 0 || mobileNumber.text.length <= 1 || messageText.text.length > 1000) {
             Toast.makeText(this, "Fields cant be empty ", Toast.LENGTH_LONG).show()
             return
@@ -111,6 +117,7 @@ class SettingsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
             var size = spinnerTrafficLimit.selectedItem.toString()
             mobileNumberForReplays = mobileNumber.text.toString()
             message = messageText.text.toString()
+            expectedMessage =replayMessageText.text.toString()
 
             viewModel.saveUserSettings(
                 mobileNumberForReplays.toString(),
@@ -118,6 +125,7 @@ class SettingsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
                 timeDataArray[1],
                 trafficLimitNumber,
                 message,
+                expectedMessage,
                  size,
                 MonitorAndReplay
             )
@@ -130,6 +138,7 @@ class SettingsActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener
 
     private fun InitializeViews() {
         messageText = findViewById(R.id.EditText_Message)
+        replayMessageText = findViewById(R.id.editText_expectedMessage)
         resetTime = findViewById(R.id.textView_timeReset)
 
         resetTime.setOnClickListener { launchTimePicker() }

@@ -1,9 +1,10 @@
 package com.example.myapplication.activities.viewmodels.recyclerviews
 
-import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import android.view.View.INVISIBLE
+import android.view.View.VISIBLE
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -40,16 +41,19 @@ class Recycler_Main_Activity(var userSettingsList: List<Model_TrafficSettings> ,
 
     inner class Adapter(itemView: View) : RecyclerView.ViewHolder(itemView){
         private  val TAG = "Recycler_Main_Activity"
+
         var limit:TextView
         var time:TextView
         var operatorNumber:TextView
         var message:TextView
+        var expectedMessage:TextView
 
         init {
             limit = itemView.findViewById(R.id.textView_DisplayTrafficLimit)
             time = itemView.findViewById(R.id.textView_DisplayTime)
             operatorNumber = itemView.findViewById(R.id.textView_TextReplayNumber)
             message = itemView.findViewById(R.id.textView_message)
+            expectedMessage = itemView.findViewById(R.id.textView_ExpectedMessage)
 
             var layout: LinearLayout = itemView.findViewById(R.id.content_main_Linear_Layout)
             layout.setOnClickListener { callback.onSettingsClick(userSettingsList.get(adapterPosition).operatorNumber) }
@@ -67,6 +71,8 @@ class Recycler_Main_Activity(var userSettingsList: List<Model_TrafficSettings> ,
 
             operatorNumber.text = "Operator number: " + data.operatorNumber + " : " + text
             message.text = "message: " + data.message
+            expectedMessage.visibility = if(data.MonitorAndReplay) VISIBLE else INVISIBLE
+            expectedMessage.text = data.expectedMessage
         }
 
     }

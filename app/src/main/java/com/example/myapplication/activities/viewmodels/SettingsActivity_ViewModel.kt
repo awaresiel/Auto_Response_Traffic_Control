@@ -50,6 +50,7 @@ class SettingsActivity_ViewModel(application: Application) : BaseViewModel(appli
         minutes: Int,
         traffic: Long,
         message: String,
+        expectedMessage: String,
         size: String,
         replayFlag:Boolean
     ) {
@@ -61,6 +62,7 @@ class SettingsActivity_ViewModel(application: Application) : BaseViewModel(appli
         settings.minutes = minutes
         settings.trafficLimit = traffic
         settings.message = message
+        settings.expectedMessage = expectedMessage
         settings.size=size
         settings.MonitorAndReplay = replayFlag
 

@@ -39,16 +39,16 @@ class MainActivity_ViewModel(application : Application) : BaseViewModel(applicat
                 repository.getAllUsersSettings()
                     .subscribe(
                         {
-                            Log.d(TAG, "initializeUserSettings: trying... ")
+
                             usersConfigurations?.postValue(it)
                             service.setListOfSettingsForMonitoring(it)
-                            Log.d(TAG, "initializeUserSettings: updatList with new value ")
+
                         },
                         {
                             for (item in it.stackTrace){
                                 Log.d(TAG, "initializeUserSettings:=========>  "+item)
                             }
-                            Log.d(TAG,"initializeUserSettings: error -> " + it)
+
                             Toast.makeText(getApplication(),"Please Configure Monitoring Settings",Toast.LENGTH_LONG).show()
                         }
                     )
@@ -62,7 +62,9 @@ class MainActivity_ViewModel(application : Application) : BaseViewModel(applicat
         addDisposables(
             repository.deleteTrafficSettingsToDatabase(data)
                 .subscribe(
-                    { Log.d(TAG, "deleteUser: user deleted ")
+                    {
+                        initializeUserSettings()
+                        Log.d(TAG, "deleteUser: user deleted ")
                         Toast.makeText(getApplication(),"user deleted! ",Toast.LENGTH_LONG).show()
                     },
                     { Log.d(TAG, "deleteUser: error -> " + it )
