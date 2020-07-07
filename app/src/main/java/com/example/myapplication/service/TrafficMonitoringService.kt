@@ -6,11 +6,13 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.BitmapFactory
+import android.icu.text.DateFormat
 import android.os.Binder
 import android.os.Build
 import android.os.IBinder
 import android.provider.Settings
 import android.telephony.SmsManager
+import android.text.style.TtsSpan
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.example.myapplication.R
@@ -20,14 +22,18 @@ import com.example.myapplication.helpers.Constants.Companion.CHANNEL_ID
 import com.example.myapplication.helpers.Constants.Companion.NOTIFICATION_CHANNEL_DESCRIPTION
 import com.example.myapplication.helpers.Constants.Companion.NOTIFICATION_CHANNEL_NAME
 import com.example.myapplication.room.Model_TrafficSettings
-import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.functions.Function
 import io.reactivex.schedulers.Schedulers
 import java.math.BigInteger
+import java.sql.Time
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
+import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 
 class TrafficMonitoringService : Service(),
@@ -79,6 +85,7 @@ class TrafficMonitoringService : Service(),
         }
         LOADING_DATA = false
     }
+
 
     override fun onCreate() {
         super.onCreate()
@@ -156,10 +163,34 @@ class TrafficMonitoringService : Service(),
         intervalScheduler = Observable.interval(0, 2, TimeUnit.SECONDS, Schedulers.io())
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe { data ->
+            .subscribe {
                     ReplyWhenLimitExceded()
+                    checkTime()
             }
     }
+
+    private fun checkTime(){
+        for (index in 0 until settingsList.size) {
+            var currentTime = Calendar.getInstance().getTime()
+            var resetTime = Calendar.getInstance()
+            resetTime.set(Calendar.HOUR_OF_DAY, settingsList[index].hours)
+            resetTime.set(Calendar.MINUTE, settingsList[index].minutes)
+            resetTime.set(Calendar.SECOND, 0)
+            Log.d(TAG, "startMonitoringDataUsage: current time = " + currentTime)
+            Log.d(TAG, "startMonitoringDataUsage: time on position settingsList[0] = " + resetTime.time)
+            if (currentTime == resetTime.time){
+                sendTextsOnStartup()
+            }
+        }
+    }
+
+    /*
+     *  constantly checking and adding current data traffic ussage to arraylist CURENT_DATA_USAGE[index] = calculate()
+     *  if CURENT_DATA_USAGE[index] becomes bigger or equal to data limit (data limit is set in beggining like current traffic spenditure * limit
+     *  that was set by user. Then and only then send a message and on that same index add one more time that same amount that was set by user->
+     *   DATA_LIMIT[index] =
+                        calculate() + (settingsList[index].trafficLimit * 1024).toBigInteger()
+     */
 
     private fun ReplyWhenLimitExceded() {
 
@@ -170,7 +201,7 @@ class TrafficMonitoringService : Service(),
             if (CURENT_DATA_USAGE[index] >= DATA_LIMIT[index]) {
                 Log.d(
                     TAG,
-                    "ReplyWhenLimitExceded: condition =  DATA_LIMIT[index] >= CURENT_DATA_USAGE[index])  replying "
+                    "ReplyWhenLimitExceded: condition =  DATA_LIMIT[index] >= CURENT_DATA_USAGE[index])  replying "  +  DATA_LIMIT[index]
                 )
 
                 if (settingsList[index].size == "GB") {
@@ -179,7 +210,7 @@ class TrafficMonitoringService : Service(),
 
                     Log.d(
                         TAG,
-                        "ReplyWhenLimitExceded: if DATA_LIMIT[index] += (settingsList[index].trafficLimit * 1024).toBigInteger() " + DATA_LIMIT[index]
+                        "ReplyWhenLimitExceded: if DATA_LIMIT[index] = (settingsList[index].trafficLimit * 1024).toBigInteger() " + DATA_LIMIT[index]
                     )
                 } else {
                     DATA_LIMIT[index] =
@@ -187,14 +218,17 @@ class TrafficMonitoringService : Service(),
 
                     Log.d(
                         TAG,
-                        "ReplyWhenLimitExceded: else  DATA_LIMIT[index] += settingsList[index].trafficLimit.toBigInteger() " + DATA_LIMIT[index]
+                        "ReplyWhenLimitExceded: else  DATA_LIMIT[index] = settingsList[index].trafficLimit.toBigInteger() " + DATA_LIMIT[index]
                     )
                 }
+                // if  DATA_LIMIT[index] is set to 0 then loop will continue forever hence it has to be set to bigger than 1
+                // just replay if Monitor data and Replay is set to false, hence replay when limit exceeded was selected
+
                 if (!settingsList[index].MonitorAndReplay && DATA_LIMIT[index] > 1.toBigInteger()) {
                     sendMessage(settingsList[index].message, settingsList[index].operatorNumber)
+                    Log.d(TAG, "ReplyWhenLimitExceded: megabite size = " +  DATA_LIMIT[index])
+
                 }
-
-
             }
         }
     }
@@ -257,6 +291,7 @@ class TrafficMonitoringService : Service(),
                 var result = calculate() + settingsList[index].trafficLimit.toBigInteger()
                 DATA_LIMIT.add(result)
             }
+            Log.d(TAG, "setupCurrentDataAndPreviousData: DATA_LIMIT[index]= " + DATA_LIMIT[index])
         }
 
     }

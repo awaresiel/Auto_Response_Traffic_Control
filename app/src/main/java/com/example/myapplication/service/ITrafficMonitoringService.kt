@@ -7,6 +7,4 @@ interface ITrafficMonitoringService {
 
      fun getTrafficData():String
      fun setListOfSettingsForMonitoring(list:List<Model_TrafficSettings>)
-
-
 }
