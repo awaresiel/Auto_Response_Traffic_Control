@@ -71,7 +71,7 @@ class Recycler_Main_Activity(var userSettingsList: List<Model_TrafficSettings> ,
 
             operatorNumber.text = "Operator number: " + data.operatorNumber + " : " + text
             message.text = "message: " + data.message
-            expectedMessage.visibility = if(data.MonitorAndReplay) VISIBLE else INVISIBLE
+             expectedMessage.visibility = if(data.MonitorAndReplay) VISIBLE else INVISIBLE
             expectedMessage.text = data.expectedMessage
         }
 

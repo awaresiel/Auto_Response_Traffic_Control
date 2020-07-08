@@ -40,12 +40,6 @@ class TrafficMonitoringService : Service(),
     ITrafficMonitoringService, IMessageListener {
     private val TAG = "TrafficMonitoringServic"
 
-    private var trafficlimit = 0L
-        get() = field
-        set(value) {
-            field = value
-        }
-
     private lateinit var settingsList: List<Model_TrafficSettings>
     private lateinit var messagesReceivedList: MutableList<MessageModel>
 
@@ -60,6 +54,9 @@ class TrafficMonitoringService : Service(),
     private var initializeOnStartup: Boolean = false
     private var LOADING_DATA: Boolean = false
     private lateinit var intervalScheduler: Disposable
+
+    private var currentMessage = ""
+    private var previousMessage = ""
 
     private var binder: MyBinder = MyBinder()
 
@@ -92,12 +89,11 @@ class TrafficMonitoringService : Service(),
 
         settingsList = ArrayList()
         messagesReceivedList = ArrayList()
-        CURENT_DATA_USAGE = ArrayList()
-        DATA_LIMIT = ArrayList()
+
 
         startNotificationService()
 
-        receiver= MessagesMonitor()
+        receiver = MessagesMonitor()
         (receiver as MessagesMonitor).setIMessageListener(this)
         val filter = IntentFilter()
         filter.addAction("android.provider.Telephony.SMS_RECEIVED")
@@ -121,7 +117,6 @@ class TrafficMonitoringService : Service(),
     override fun onBind(p0: Intent?): IBinder? {
         return binder
     }
-
 
 
     private fun startNotificationService() {
@@ -162,14 +157,13 @@ class TrafficMonitoringService : Service(),
 
         intervalScheduler = Observable.interval(0, 2, TimeUnit.SECONDS, Schedulers.io())
             .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
             .subscribe {
-                    ReplyWhenLimitExceded()
-                    checkTime()
+                ReplyWhenLimitExceded()
+                checkTime()
             }
     }
 
-    private fun checkTime(){
+    private fun checkTime() {
         for (index in 0 until settingsList.size) {
             var currentTime = Calendar.getInstance().getTime()
             var resetTime = Calendar.getInstance()
@@ -177,8 +171,11 @@ class TrafficMonitoringService : Service(),
             resetTime.set(Calendar.MINUTE, settingsList[index].minutes)
             resetTime.set(Calendar.SECOND, 0)
             Log.d(TAG, "startMonitoringDataUsage: current time = " + currentTime)
-            Log.d(TAG, "startMonitoringDataUsage: time on position settingsList[0] = " + resetTime.time)
-            if (currentTime == resetTime.time){
+            Log.d(
+                TAG,
+                "startMonitoringDataUsage: time on position settingsList[0] = " + resetTime.time
+            )
+            if (currentTime == resetTime.time) {
                 sendTextsOnStartup()
             }
         }
@@ -193,7 +190,10 @@ class TrafficMonitoringService : Service(),
      */
 
     private fun ReplyWhenLimitExceded() {
-
+        Log.d(
+            TAG,
+            "ReplyWhenLimitExceded:settingsList " + settingsList.size + " CURENT_DATA_USAGE= " + CURENT_DATA_USAGE.size + " DATA_LIMIT " + DATA_LIMIT.size
+        )
         for (index in 0 until settingsList.size) {
 
             CURENT_DATA_USAGE[index] = calculate()
@@ -201,7 +201,7 @@ class TrafficMonitoringService : Service(),
             if (CURENT_DATA_USAGE[index] >= DATA_LIMIT[index]) {
                 Log.d(
                     TAG,
-                    "ReplyWhenLimitExceded: condition =  DATA_LIMIT[index] >= CURENT_DATA_USAGE[index])  replying "  +  DATA_LIMIT[index]
+                    "ReplyWhenLimitExceded: condition =  DATA_LIMIT[index] >= CURENT_DATA_USAGE[index])  replying " + DATA_LIMIT[index]
                 )
 
                 if (settingsList[index].size == "GB") {
@@ -226,7 +226,7 @@ class TrafficMonitoringService : Service(),
 
                 if (!settingsList[index].MonitorAndReplay && DATA_LIMIT[index] > 1.toBigInteger()) {
                     sendMessage(settingsList[index].message, settingsList[index].operatorNumber)
-                    Log.d(TAG, "ReplyWhenLimitExceded: megabite size = " +  DATA_LIMIT[index])
+                    Log.d(TAG, "ReplyWhenLimitExceded: megabite size = " + DATA_LIMIT[index])
 
                 }
             }
@@ -235,42 +235,39 @@ class TrafficMonitoringService : Service(),
 
     fun sendMessage(message: String, number: String) {
 
-         val smsManager = SmsManager.getDefault() as SmsManager
-         smsManager.sendTextMessage(number, null, message, null, null)
+        val smsManager = SmsManager.getDefault() as SmsManager
+        smsManager.sendTextMessage(number, null, message, null, null)
 
     }
 
-    private fun sendTextsOnStartup(){
+    private fun sendTextsOnStartup() {
 
-        for (item in settingsList){
-            if (item.MonitorAndReplay){
-            sendMessage(item.message,item.operatorNumber)
+        for (item in settingsList) {
+            if (item.MonitorAndReplay) {
+                sendMessage(item.message, item.operatorNumber)
             }
         }
     }
 
-    private fun replayOnTextArrived() {
 
-        Observable.fromIterable(messagesReceivedList)
-            .subscribeOn(Schedulers.io())
-            .map(Function<MessageModel, Int> { t ->
-                for (index in 0 until settingsList.size) {
-                    if (settingsList[index].expectedMessage.contains(t.getMessage) && settingsList[index].MonitorAndReplay) {
+    private fun replayOnTextArrived(message: MessageModel) {
 
-                        return@Function index
-                    }
-                }
-                -1
-            })
-            .observeOn(AndroidSchedulers.mainThread())
-            .subscribe {
-                if (it != -1) {
-                    Log.d(TAG, "replayOnTextArrived: replaying on recieved text")
-                    sendMessage(settingsList[it].message, settingsList[it].operatorNumber)
-                    messagesReceivedList.removeAt(it)
-                }
-            }.dispose()
+        currentMessage = message.getMessage
 
+        if (currentMessage == previousMessage) {
+            Log.d(TAG, "replayOnTextArrived: same messages, returning " + previousMessage)
+            return
+        }
+
+        for (index in 0 until settingsList.size) {
+            if (settingsList[index].expectedMessage.contains(message.getMessage) && settingsList[index].MonitorAndReplay) {
+
+                sendMessage(settingsList[index].message, settingsList[index].operatorNumber)
+                messagesReceivedList.removeAt(index)
+                Log.d(TAG, "replayOnTextArrived: replying")
+                previousMessage = message.getMessage
+            }
+        }
     }
 
 
@@ -278,10 +275,13 @@ class TrafficMonitoringService : Service(),
         Log.d(TAG, "onMessageArrived: " + message.getMessageBody)
         messagesReceivedList.add(message)
 
-        replayOnTextArrived()
+        replayOnTextArrived(message)
+
     }
 
     private fun setupCurrentDataAndPreviousData() {
+        CURENT_DATA_USAGE = ArrayList()
+        DATA_LIMIT = ArrayList()
         for (index in 0 until settingsList.size) {
             CURENT_DATA_USAGE.add(calculate())
             if (settingsList[index].size == "GB") {
@@ -291,7 +291,7 @@ class TrafficMonitoringService : Service(),
                 var result = calculate() + settingsList[index].trafficLimit.toBigInteger()
                 DATA_LIMIT.add(result)
             }
-            Log.d(TAG, "setupCurrentDataAndPreviousData: DATA_LIMIT[index]= " + DATA_LIMIT[index])
+            Log.d(TAG, "setupCurrentDataAndPreviousData: DATA_LIMIT[index]= " + DATA_LIMIT.size)
         }
 
     }
