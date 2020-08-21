@@ -30,6 +30,7 @@ import io.reactivex.schedulers.Schedulers
 import java.math.BigInteger
 import java.sql.Time
 import java.text.SimpleDateFormat
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -165,17 +166,18 @@ class TrafficMonitoringService : Service(),
 
     private fun checkTime() {
         for (index in 0 until settingsList.size) {
-            var currentTime = Calendar.getInstance().getTime()
+            var currentTime = Calendar.getInstance().time
             var resetTime = Calendar.getInstance()
             resetTime.set(Calendar.HOUR_OF_DAY, settingsList[index].hours)
             resetTime.set(Calendar.MINUTE, settingsList[index].minutes)
             resetTime.set(Calendar.SECOND, 0)
-            Log.d(TAG, "startMonitoringDataUsage: current time = " + currentTime)
+            Log.d(TAG, "startMonitoringDataUsage: current time = " + currentTime.time)
             Log.d(
                 TAG,
-                "startMonitoringDataUsage: time on position settingsList[0] = " + resetTime.time
+                "startMonitoringDataUsage: time on position settingsList[0] = " + resetTime.time.time
             )
-            if (currentTime == resetTime.time) {
+            if (resetTime.time.time == currentTime.time || currentTime.time.minus(resetTime.time.time)==1L )
+            {
                 sendTextsOnStartup()
             }
         }
@@ -234,7 +236,7 @@ class TrafficMonitoringService : Service(),
     }
 
     fun sendMessage(message: String, number: String) {
-
+        Log.d(TAG, "sendMessage: message "+ message)
         val smsManager = SmsManager.getDefault() as SmsManager
         smsManager.sendTextMessage(number, null, message, null, null)
 
