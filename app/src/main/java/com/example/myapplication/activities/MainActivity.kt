@@ -141,12 +141,7 @@ class MainActivity : AppCompatActivity(), IRecycler_Main_Activity {
             Observer<String> { data -> trafficDisplay.text = data })
 
         vm?.initializeUserSettings()?.observe(this, Observer<List<Model_TrafficSettings>> {
-            if (it != null && it.isNotEmpty()) {
-                for (value in it){
-                    Log.d(TAG, "startObserving: it = " +value.operatorNumber)
-                }
                 recyclerViewAdapter.updatList(it)
-            }
         })
     }
 

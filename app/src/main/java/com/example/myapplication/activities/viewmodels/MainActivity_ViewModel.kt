@@ -35,21 +35,23 @@ class MainActivity_ViewModel(application : Application) : BaseViewModel(applicat
       if (usersConfigurations==null) {
             usersConfigurations = MutableLiveData()
       }
-            addDisposables (
+            addDisposables(
                 repository.getAllUsersSettings()
                     .subscribe(
-                        {
-
-                            usersConfigurations?.postValue(it)
-                            service.setListOfSettingsForMonitoring(it)
-
+                        { list ->
+                            usersConfigurations?.postValue(list)
+                            service.setListOfSettingsForMonitoring(list)
                         },
                         {
-                            for (item in it.stackTrace){
-                                Log.d(TAG, "initializeUserSettings:=========>  "+item)
+                            for (item in it.stackTrace) {
+                                Log.d(TAG, "initializeUserSettings:=========>  " + item)
                             }
 
-                            Toast.makeText(getApplication(),"Please Configure Monitoring Settings",Toast.LENGTH_LONG).show()
+                            Toast.makeText(
+                                getApplication(),
+                                "Please Configure Monitoring Settings",
+                                Toast.LENGTH_LONG
+                            ).show()
                         }
                     )
             )
@@ -57,6 +59,8 @@ class MainActivity_ViewModel(application : Application) : BaseViewModel(applicat
             return usersConfigurations
 
     }
+
+
 
     override fun deleteUser(data:Model_TrafficSettings) {
         addDisposables(

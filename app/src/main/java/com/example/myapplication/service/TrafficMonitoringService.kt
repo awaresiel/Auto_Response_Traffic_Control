@@ -14,6 +14,7 @@ import android.provider.Settings
 import android.telephony.SmsManager
 import android.text.style.TtsSpan
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import com.example.myapplication.R
 import com.example.myapplication.activities.MainActivity
@@ -245,7 +246,10 @@ class TrafficMonitoringService : Service(),
     }
 
     private fun sendTextsOnStartup() {
-
+        if(settingsList.isNullOrEmpty()){
+            Toast.makeText(this,"There are no numbers in the list, cant send text",Toast.LENGTH_SHORT).show();
+            return
+        }
         for (item in settingsList) {
             if (item.MonitorAndReplay) {
                 sendMessage(item.message, item.operatorNumber)

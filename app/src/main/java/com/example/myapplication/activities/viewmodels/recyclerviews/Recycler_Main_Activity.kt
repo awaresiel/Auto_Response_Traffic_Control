@@ -3,8 +3,7 @@ package com.example.myapplication.activities.viewmodels.recyclerviews
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import android.view.View.INVISIBLE
-import android.view.View.VISIBLE
+import android.view.View.*
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -25,7 +24,11 @@ class Recycler_Main_Activity(var userSettingsList: List<Model_TrafficSettings> ,
     }
 
     override fun getItemCount(): Int {
-        return userSettingsList.size
+        if (!userSettingsList.isNullOrEmpty()){
+            return userSettingsList.size
+        }else{
+            return 1
+        }
     }
     fun updatList(list: List<Model_TrafficSettings>){
         userSettingsList = list
@@ -34,8 +37,10 @@ class Recycler_Main_Activity(var userSettingsList: List<Model_TrafficSettings> ,
     }
 
     override fun onBindViewHolder(holder: Adapter, position: Int) {
-        if (userSettingsList.isNotEmpty()){
-             holder.bind(userSettingsList[position])
+        if (userSettingsList.isNullOrEmpty()){
+            holder.bindEmpty();
+        }else{
+            holder.bind(userSettingsList[position])
         }
     }
 
@@ -56,14 +61,21 @@ class Recycler_Main_Activity(var userSettingsList: List<Model_TrafficSettings> ,
             expectedMessage = itemView.findViewById(R.id.textView_ExpectedMessage)
 
             var layout: LinearLayout = itemView.findViewById(R.id.content_main_Linear_Layout)
-            layout.setOnClickListener { callback.onSettingsClick(userSettingsList.get(adapterPosition).operatorNumber) }
+            layout.setOnClickListener {
+                if (!userSettingsList.isNullOrEmpty())
+                callback.onSettingsClick(userSettingsList.get(adapterPosition).operatorNumber) }
             layout.setOnLongClickListener {
+                if (!userSettingsList.isNullOrEmpty())
                 callback.onDelete( userSettingsList.get(adapterPosition) )
                      true
             }
         }
 
         fun bind(data : Model_TrafficSettings){
+            limit.visibility = VISIBLE
+            time.visibility = VISIBLE
+            operatorNumber.visibility = VISIBLE
+            expectedMessage.visibility = VISIBLE
             limit.text = "Limit : " + data.trafficLimit.toString() + " " + data.size
             time.text = "Time of Reset: "+data.hours.toString() + " hours and " + data.minutes + " minutes"
 
@@ -73,6 +85,13 @@ class Recycler_Main_Activity(var userSettingsList: List<Model_TrafficSettings> ,
             message.text = "message: " + data.message
              expectedMessage.visibility = if(data.MonitorAndReplay) VISIBLE else INVISIBLE
             expectedMessage.text = data.expectedMessage
+        }
+        fun bindEmpty(){
+            message.text = "list is empty, please add new data"
+            limit.visibility = GONE
+            time.visibility = GONE
+            operatorNumber.visibility = GONE
+            expectedMessage.visibility = GONE
         }
 
     }
