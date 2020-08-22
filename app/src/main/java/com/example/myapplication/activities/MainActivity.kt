@@ -95,6 +95,10 @@ class MainActivity : AppCompatActivity(), IRecycler_Main_Activity {
                 startSettingsActivity("")
                 return true
             }
+            R.id.item_checkAllStates ->{
+                service.checkAllStates();
+                return true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

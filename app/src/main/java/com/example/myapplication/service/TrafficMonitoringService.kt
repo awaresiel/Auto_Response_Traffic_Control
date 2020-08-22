@@ -78,12 +78,14 @@ class TrafficMonitoringService : Service(),
 
         if (!initializeOnStartup) {
             startMonitoringDataUsage()
-            sendTextsOnStartup()
             initializeOnStartup = true
         }
         LOADING_DATA = false
     }
 
+    override fun checkAllStates() {
+        sendTextsOnStartup();
+    }
 
     override fun onCreate() {
         super.onCreate()
